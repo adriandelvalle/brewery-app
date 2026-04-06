@@ -1,6 +1,6 @@
 # brewery-app
 
-> Brewery management application with AI assistance.
+> Brewery management application with AI assistance.<br>
 > **Status**: Phase 1 (Scaffold) | [View Learning Path](../portfolio)
 
 ---
@@ -19,6 +19,7 @@ This project serves as:
 - AI Integration: Planned (Local LLMs via Ollama, coming Phase 4/5)
 
 ## Architecture
+```
 brewery-app/
 ├── backend/
 │   ├── src/
@@ -31,6 +32,7 @@ brewery-app/
 ├── docs/decisions/       # Architecture Decision Records
 ├── scripts/              # Automation tools
 └── README.md
+```
 
 ## Tech Stack
 - Language: Python 3.11+
@@ -46,5 +48,5 @@ This repository contains the application code.
 For detailed learning notes, progress tracking, and cheatsheets, visit the [Main Portfolio Repository](../portfolio).
 
 ---
-> Philosophy: Learning-first, users-later. 100% free stack. Depth > speed.
+> Philosophy: Learning-first, users-later. 100% free stack. Depth > speed.<br>
 > Last updated: 2026-04-06
