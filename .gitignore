@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+.venv/
+.env
+.env.*
+!.env.example
+
+# IDE / Editores
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Sistema / OS
+.DS_Store
+Thumbs.db
+
+# Logs y temporales
+*.log
+logs/
+tmp/
+temp/
+
+# Futuros artifacts ML/LLM (por si acaso)
+*.gguf
+models/
+*.joblib
+*.pkl
