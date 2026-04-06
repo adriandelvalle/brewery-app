@@ -1,7 +1,7 @@
 # brewery-app
 
 > Brewery management application with AI assistance.<br>
-> **Status**: Phase 1 (Scaffold) | [View Learning Path](../portfolio)
+> **Status**: Phase 1 (Scaffold) | [View Learning Path](https://github.com/adriandelvalle/dev-ml-llm-ops)
 
 ---
 
@@ -45,7 +45,7 @@ brewery-app/
 
 ## Learning Context
 This repository contains the application code.
-For detailed learning notes, progress tracking, and cheatsheets, visit the [Main Portfolio Repository](../portfolio).
+For detailed learning notes, progress tracking, and cheatsheets, visit the [Main Portfolio Repository](https://github.com/adriandelvalle/dev-ml-llm-ops).
 
 ---
 > Philosophy: Learning-first, users-later. 100% free stack. Depth > speed.<br>
