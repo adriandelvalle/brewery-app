@@ -1,7 +1,7 @@
 # brewery-app
 
 > Brewery management application with AI assistance.<br>
-> **Status**: Phase 1 (Scaffold) | [View Learning Path](https://github.com/adriandelvalle/dev-ml-llm-ops)
+> **Status**: Phase 1 (Week 2 Complete) | [View Learning Path](https://github.com/adriandelvalle/dev-ml-llm-ops)
 
 ---
 
@@ -10,16 +10,40 @@ This project serves as:
 1. A practical vehicle for learning DevOps, MLOps, and LLMOps best practices.
 2. A future operational tool for our artisanal brewery.
 
+## Quick Start
+```bash
+# 1. Setup environment
+cd backend
+python3 -m venv venv
+source venv/bin/activate
+
+# 2. Install dependencies
+pip install -r requirements.txt
+
+# 3. Run server
+cd src
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
+```
+
+Access: http://localhost:8000/health or http://localhost:8000/docs
+
+---
+
 ## Current Status
-- Project Structure: Ready (Backend, docs, scripts organized)
-- Security Audit: Ready (audit-permissions.sh implemented)
-- Version Control: Ready (Git with Conventional Commits)
-- Backend API: Planned (FastAPI, coming Week 2)
-- Database: Planned (PostgreSQL, coming Week 2)
-- AI Integration: Planned (Local LLMs via Ollama, coming Phase 4/5)
+| Component | Status | Notes |
+| :--- | :--- | :--- |
+Project Structure | ✅ Ready | Backend, docs, scripts organized
+Security Audit | ✅ Ready | audit-permissions.sh implemented
+Version Control | ✅ Ready | Git + Conventional Commits
+Backend API | ✅ Implemented | FastAPI scaffold + /health endpoint
+Database | ⏳ Planned | PostgreSQL + SQLAlchemy (Week 3)
+AI Integration | ✅ Ready | OpenCode + Ollama (Qwen3:8b)
+
+---
 
 ## Architecture
-```
+
+``` 
 brewery-app/
 ├── backend/
 │   ├── src/
@@ -27,21 +51,24 @@ brewery-app/
 │   │   ├── core/         # Config, security, logging
 │   │   └── models/       # SQLAlchemy models
 │   ├── tests/
-│   ├── Dockerfile
-│   └── requirements.txt
+│   ├── requirements.txt
+│   └── Dockerfile        # Planned
 ├── docs/decisions/       # Architecture Decision Records
 ├── scripts/              # Automation tools
 └── README.md
 ```
 
+---
+
 ## Tech Stack
-- Language: Python 3.11+
-- Framework: FastAPI (ASGI)
-- AI / LLM: Ollama + Qwen2.5-Coder (Local, 100% Free)
-- Database: PostgreSQL
-- Infrastructure: Docker, Kubernetes (k3s)
-- CI/CD: GitHub Actions
-- Monitoring: Prometheus + Grafana (Planned)
+| Category | Technology |
+| :--- | :--- |
+| Language | Python 3.12+|
+| Framework | FastAPI (ASGI) + Uvicorn |
+| AI / LLM | OpenCode CLI + Ollama + Qwen3:8b|
+| Database | PostgreSQL (Planned) |
+| Infrastructure | 	Docker, Kubernetes (k3s) |
+| CI/CD | GitHub Actions|
 
 ## Learning Context
 This repository contains the application code.
