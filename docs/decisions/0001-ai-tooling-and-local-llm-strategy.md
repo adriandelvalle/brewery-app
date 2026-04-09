@@ -1,7 +1,7 @@
 # ADR-0001: AI Tooling & Local LLM Strategy
 
 ## Status
-Accepted
+Superseded by ADR-0003
 
 ## Context
 We need an AI coding assistant that runs 100% locally on our ACEMAGIC hardware (AMD APU, 32GB RAM), costs nothing, and respects privacy. We evaluated OpenCode, Aider, and various LLM models (Qwen2.5 vs Qwen3).

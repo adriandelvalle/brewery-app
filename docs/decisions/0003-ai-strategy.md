@@ -96,7 +96,7 @@ Config mínima (~/.config/opencode/opencode.json):
 }
 ```
 
-### Configuración Actual (Desarrollo)
+### Configuración Futura (Local / MLOps)
 
 - Tooling: Ollama + llama.cpp optimizado
 - Hardware: jotasrv (Radeon 680M) + posible GPU dedicada
