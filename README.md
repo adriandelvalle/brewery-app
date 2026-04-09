@@ -37,7 +37,7 @@ Security Audit | ✅ Ready | audit-permissions.sh implemented
 Version Control | ✅ Ready | Git + Conventional Commits
 Backend API | ✅ Implemented | FastAPI scaffold + /health endpoint
 Database | ⏳ Planned | PostgreSQL + SQLAlchemy (Week 3)
-AI Integration | ✅ Ready | OpenCode + Ollama (Qwen3:8b)
+AI Integration | ✅ Ready | OpenCode free tier
 
 ---
 
@@ -49,7 +49,7 @@ brewery-app/
 │   ├── src/
 │   │   ├── api/          # FastAPI endpoints
 │   │   ├── core/         # Config, security, logging
-│   │   └── models/       # SQLAlchemy models
+│   │   └── models/       # Pydantic, SQLAlchemy models
 │   ├── tests/
 │   ├── requirements.txt
 │   └── Dockerfile        # Planned
@@ -65,10 +65,28 @@ brewery-app/
 | :--- | :--- |
 | Language | Python 3.12+|
 | Framework | FastAPI (ASGI) + Uvicorn |
-| AI / LLM | OpenCode CLI + Ollama + Qwen3:8b|
+| AI / LLM | OpenCode CLI free cloud tier + Ollama (local, batch) |
 | Database | PostgreSQL (Planned) |
 | Infrastructure | 	Docker, Kubernetes (k3s) |
-| CI/CD | GitHub Actions|
+| CI/CD | GitHub Actions |
+| Secrets | HashiCorp Vault (Planned) |
+
+
+---
+
+## AI Strategy (Hybrid)
+| Use Case | Infrastructure | Model |
+| :--- | :--- | :--- |
+Interactive development (code, refactor, docs) |  Cloud  | free tier
+Nightly automations / batch tasks | Local (Ollama) | phi3:mini, llama3.2:3b
+MLOps/LLMOps experiments (deploy, monitoring) | Local (Ollama) | Any experimental model
+Production with sensitive data | Local + dedicated GPU* | Quantized model
+
+*Future: RTX 3060 12GB or similar for viable local inference.
+
+
+---
+
 
 ## Learning Context
 This repository contains the application code.
@@ -76,4 +94,4 @@ For detailed learning notes, progress tracking, and cheatsheets, visit the [Main
 
 ---
 > Philosophy: Learning-first, users-later. 100% free stack. Depth > speed.<br>
-> Last updated: 2026-04-06
+> Last updated: 2026-04-08
