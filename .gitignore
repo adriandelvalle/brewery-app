@@ -28,10 +28,14 @@ temp/
 
 # Futuros artifacts ML/LLM (por si acaso)
 *.gguf
-models/
 *.joblib
 *.pkl
 backend/venv/
 __pycache__/
 *.pyc
 .mypy_cache/
+
+# ML model artifacts (weights, checkpoints) - NOT Pydantic models
+/mlops/models/
+/llmops/models/
+*.bin
