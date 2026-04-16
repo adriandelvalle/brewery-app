@@ -2,8 +2,8 @@ from datetime import date
 from src.models.recipe import RecipeResponse, BeerStyle
 from src.models.batch import BatchResponse, BatchStatus, BatchMeasurements
 
-# Mock data de recetas
-RECIPES: dict[int, RecipeResponse] = {
+# Datos por defecto — usados para resetear en tests
+RECIPES_DEFAULT: dict[int, RecipeResponse] = {
     1: RecipeResponse(
         id=1,
         name="Asturian Pale Ale",
@@ -30,8 +30,7 @@ RECIPES: dict[int, RecipeResponse] = {
     ),
 }
 
-# Mock data de lotes
-BATCHES: dict[int, BatchResponse] = {
+BATCHES_DEFAULT: dict[int, BatchResponse] = {
     1: BatchResponse(
         id=1,
         recipe_id=1,
@@ -52,6 +51,10 @@ BATCHES: dict[int, BatchResponse] = {
     ),
 }
 
-# Contadores para simular auto-increment de IDs (sustituiremos por DB en Fase 2)
+# Datos en uso — modificados por la API en runtime
+RECIPES: dict[int, RecipeResponse] = dict(RECIPES_DEFAULT)
+BATCHES: dict[int, BatchResponse] = dict(BATCHES_DEFAULT)
+
+# Contadores para simular auto-increment de IDs
 next_recipe_id = 3
 next_batch_id = 2
