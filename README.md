@@ -1,7 +1,7 @@
 # brewery-app
 
 > Brewery management application with AI assistance.
-> **Status**: Phase 1 — Week 3 Complete | [View Learning Path](https://github.com/adriandelvalle/dev-ml-llm-ops)
+> **Status**: Phase 1 — Week 4 In Progress (Docker complete) | [View Learning Path](https://github.com/adriandelvalle/dev-ml-llm-ops)
 
 ---
 
@@ -16,17 +16,22 @@ This project serves as:
 
 ## Quick Start
 
+### Local development
+
 ```bash
-# 1. Setup environment
 cd backend
 python3 -m venv venv
 source venv/bin/activate
-
-# 2. Install dependencies
-pip install -r requirements.txt
-
-# 3. Run server — always from backend/, not from project root
+pip install -r requirements-dev.txt
 uvicorn src.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+### Docker (recommended)
+
+```bash
+cd backend
+docker build -t brewery-app:v0.1 .
+docker run -d --name brewery-api -p 8000:8000 --restart unless-stopped brewery-app:v0.1
 ```
 
 Access:
@@ -57,7 +62,11 @@ pytest -v
 | API v1 Endpoints | ✅ Complete | GET/POST recipes and batches |
 | Mock Data | ✅ Complete | In-memory data until PostgreSQL |
 | pytest suite | ✅ Complete | 14 tests — recipes and batches |
+| Docker | ✅ Complete | Containerized + restart unless-stopped |
+| Service Persistence | ✅ Complete | Auto-starts after server reboot |
 | AI Integration | ✅ Ready | OpenCode free tier (cloud-first, see ADR-0003) |
+| Nginx + Cloudflare Tunnel | ⏳ Pending | Week 4 continuation |
+| Static files (Tres Tigris) | ⏳ Pending | Week 4 continuation |
 | Database | ⏳ Planned | PostgreSQL + SQLAlchemy + Alembic (Week 5) |
 
 ---
@@ -85,7 +94,7 @@ pytest -v
 brewery-app/
 ├── backend/
 │   ├── src/
-│   │   ├── main.py           # App entry point — registers routers only
+│   │   ├── main.py                 # App entry point — registers routers only
 │   │   ├── api/
 │   │   │   └── v1/
 │   │   │       ├── recipes.py      # Recipe endpoints
@@ -100,14 +109,38 @@ brewery-app/
 │   │   ├── conftest.py             # TestClient fixture + autouse mock data reset
 │   │   ├── test_recipes.py         # 7 tests for recipe endpoints
 │   │   └── test_batches.py         # 7 tests for batch endpoints
+│   ├── Dockerfile                  # Production image definition
+│   ├── .dockerignore               # Excludes venv, tests, etc from image
 │   ├── pytest.ini
-│   ├── requirements.txt
-│   └── Dockerfile                  # Planned Week 4
-├── .pre-commit-config.yaml         # pre-commit hooks configuration
-├── .cz.toml                        # commitizen configuration
-├── docs/decisions/                 # Architecture Decision Records
-├── scripts/                        # Automation tools
+│   ├── requirements.txt            # Production dependencies only
+│   └── requirements-dev.txt        # Dev dependencies (-r requirements.txt + extras)
+├── .pre-commit-config.yaml
+├── .cz.toml
+├── docs/decisions/
+├── scripts/
 └── README.md
+```
+
+---
+
+## Docker Stack
+
+```
+jotasrv (Ubuntu 24.04)
+└── Docker Engine 29.5.2
+    └── brewery-api (brewery-app:v0.1)
+        ├── restart: unless-stopped
+        ├── port: 0.0.0.0:8000 → :8000
+        └── uvicorn → FastAPI → Pydantic
+```
+
+**Planned (Week 4 continuation):**
+```
+jotasrv
+└── Docker Engine
+    ├── brewery-nginx    ← Nginx reverse proxy + HTTPS
+    │   └── :80/:443 → brewery-api:8000
+    └── brewery-api      ← FastAPI
 ```
 
 ---
@@ -128,36 +161,6 @@ fermentation until gravity stabilizes (typically 5–7 days).
 
 ---
 
-## Pydantic Patterns Used
-
-**Create / Response separation** — the model that receives data is never the same
-as the one that returns it. System-generated fields (`id`, `status`, `created_at`)
-only appear in Response models.
-
-**Model composition** — `BatchMeasurements` is a nested model inside `BatchResponse`
-because measurements accumulate across different phases of the brewing process,
-not all at creation time.
-
-**Enums for domain vocabulary** — `BeerStyle` and `BatchStatus` ensure only valid
-domain values are accepted. Invalid values are rejected automatically with a clear
-error message listing accepted options.
-
----
-
-## Testing Approach
-
-**14 tests** covering:
-- List endpoints return expected number of items
-- GET by ID returns correct data
-- GET by non-existent ID returns 404
-- POST with valid data returns 201 with system-generated fields
-- POST with invalid data returns 422
-- State isolation between tests via `conftest.py` autouse fixture
-
-Tests run without the server — `TestClient` talks directly to the FastAPI app in memory.
-
----
-
 ## Tech Stack
 
 | Category | Technology |
@@ -167,27 +170,14 @@ Tests run without the server — `TestClient` talks directly to the FastAPI app 
 | Validation | Pydantic v2 |
 | Testing | pytest + httpx + pytest-asyncio |
 | Code Quality | pre-commit + commitizen |
+| Containerization | Docker 29.5.2 |
 | AI / LLM | OpenCode CLI free cloud tier + Ollama (local, batch) |
 | Database | PostgreSQL + SQLAlchemy 2 + Alembic (Week 5) |
 | Secrets (pre-Vault) | python-dotenv + .env (Week 5) |
-| Infrastructure | Docker (Week 4), Kubernetes k3s (Phase 3) |
+| Reverse Proxy | Nginx (Week 4 continuation) |
+| External Access | Cloudflare Tunnel (Week 4 continuation) |
 | CI/CD | GitHub Actions (Week 8) |
 | Secrets | HashiCorp Vault (Week 7) |
-
----
-
-## AI Strategy (Hybrid)
-
-| Use Case | Infrastructure | Model |
-| --- | --- | --- |
-| Interactive development | Cloud (OpenCode) | free tier |
-| Nightly automations / batch | Local (Ollama) | phi3:mini, llama3.2:3b |
-| MLOps/LLMOps experiments | Local (Ollama) | Any experimental model |
-| Production with sensitive data | Local + dedicated GPU* | Quantized model |
-
-*Future: RTX 3060 12GB or similar.
-Local inference tested with qwen2.5-coder:7b — 2–4 tok/s, 30–50s latency, not viable
-for interactive development. See ADR-0001 (superseded) and ADR-0003.
 
 ---
 
@@ -211,4 +201,4 @@ For detailed learning notes, progress tracking, and cheatsheets, visit the
 ---
 
 > Philosophy: Learning-first, users-later. 100% free stack. Depth > speed.
-> Last updated: 2026-04-17
+> Last updated: 2026-05-27
