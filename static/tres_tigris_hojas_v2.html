@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tres Tigris Banner</title>
+</head>
+<body>
+  <style>
+  @import url('https://fonts.googleapis.com/css2?family=Rozha+One&family=Fraunces:wght@400&family=DM+Mono:wght@400&display=swap');
+  *{box-sizing:border-box}
+  .tt-wrap{font-family:'DM Mono',monospace}
+  .tt-controls{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px}
+  .tt-tabs{display:flex;gap:0}
+  .tt-tab{background:none;border:0.5px solid var(--color-border-tertiary);padding:8px 16px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;cursor:pointer;color:var(--color-text-secondary);transition:all .2s}
+  .tt-tab:first-child{border-radius:4px 0 0 4px}
+  .tt-tab:last-child{border-radius:0 4px 4px 0}
+  .tt-tab.active{background:var(--color-background-secondary);color:var(--color-text-primary);border-color:var(--color-border-primary)}
+  .tt-right{display:flex;align-items:center;gap:8px}
+  .tt-fmt{display:flex;gap:0}
+  .tt-fmt button{background:none;border:0.5px solid var(--color-border-tertiary);padding:6px 12px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;color:var(--color-text-secondary);transition:all .2s}
+  .tt-fmt button:first-child{border-radius:4px 0 0 4px}
+  .tt-fmt button:last-child{border-radius:0 4px 4px 0}
+  .tt-fmt button.active{background:var(--color-background-secondary);color:var(--color-text-primary);border-color:var(--color-border-primary)}
+  .tt-btn{background:none;border:0.5px solid var(--color-border-tertiary);color:var(--color-text-secondary);font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:6px 14px;border-radius:4px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:6px}
+  .tt-btn:hover{background:var(--color-background-secondary);color:var(--color-text-primary)}
+  .tt-pin-row{display:none;align-items:center;gap:8px;margin-bottom:14px}
+  .tt-pin-row.visible{display:flex}
+  .tt-pin-row input{font-family:'DM Mono',monospace;font-size:12px;padding:6px 12px;width:120px;letter-spacing:4px}
+  .tt-pin-row span{font-family:'DM Mono',monospace;font-size:10px;color:var(--color-text-danger,#e24b4a);letter-spacing:2px}
+  .slide-frame{display:flex;justify-content:center}
+  .slide-outer{background:#2A3A22;overflow:hidden;transition:width .3s,height .3s}
+  .slide-inner{padding:28px 26px 0;height:calc(100% - 44px)}
+  .tt-tag{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:4px;text-transform:uppercase;background:#C87A18;color:#0F140E;padding:4px 10px;border-radius:2px;display:inline-block}
+  .tt-title{font-family:'Rozha One',serif;color:#f1e7cf;line-height:.92;letter-spacing:-1px;margin:16px 0 0}
+  .tt-rule{width:40px;height:2px;background:#C87A18;margin:12px 0}
+  .tt-body{font-family:'Fraunces',serif;color:#f1e7cf;opacity:.85;line-height:1.55}
+  .tt-li{display:flex;align-items:flex-start;margin-bottom:9px}
+  .tt-dot{color:#C87A18;font-family:'Rozha One',serif;margin-right:8px;flex-shrink:0;margin-top:1px}
+  .tt-li-text{font-family:'Fraunces',serif;color:#f1e7cf;opacity:.9;line-height:1.45}
+  .tt-inset{background:#0F140E;padding:12px 14px;border-left:3px solid #C87A18;margin-top:14px}
+  .tt-inset-label{font-family:'DM Mono',monospace;color:#C87A18;letter-spacing:3px;text-transform:uppercase;margin-bottom:4px}
+  .tt-inset-text{font-family:'Fraunces',serif;color:#f1e7cf;opacity:.8;line-height:1.45}
+  .tt-note{font-family:'DM Mono',monospace;color:#f1e7cf;opacity:.4;letter-spacing:3px;text-transform:uppercase}
+  .tt-bar{background:#0F140E;height:44px;padding:0 22px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+  .tt-handle{font-family:'DM Mono',monospace;font-size:10px;color:#C87A18;letter-spacing:3px}
+  .tt-sub{font-family:'DM Mono',monospace;font-size:10px;color:#f1e7cf;opacity:.45;letter-spacing:3px}
+  .slide-content{display:none}.slide-content.active{display:block}
+  </style>
+
+  <div class="tt-wrap">
+    <div class="tt-pin-row" id="pin-row">
+      <input type="password" id="pin-input" placeholder="PIN" maxlength="6" onkeydown="if(event.key==='Enter')checkPin()"/>
+      <button class="tt-btn" onclick="checkPin()">OK</button>
+      <span id="pin-err" style="display:none">Incorrecto</span>
+    </div>
+
+    <div class="tt-controls">
+      <div class="tt-tabs">
+        <button class="tt-tab active" onclick="switchTab(0)">Membresía</button>
+        <button class="tt-tab" onclick="switchTab(1)">Evento</button>
+      </div>
+      <div class="tt-right">
+        <div class="tt-fmt">
+          <button class="active" id="fmt-feed" onclick="setFormat('feed')">Feed 1:1</button>
+          <button id="fmt-story" onclick="setFormat('story')">Story 9:16</button>
+        </div>
+        <button class="tt-btn" id="export-btn" onclick="requestExport()">↓ JPG</button>
+      </div>
+    </div>
+
+    <div class="slide-frame">
+      <div class="slide-outer" id="slide-outer">
+        <div class="slide-inner" id="slide-inner">
+          <div class="slide-content active" id="slide-0">
+            <span class="tt-tag">Membresía · 15 €/mes</span>
+            <div class="tt-title" id="t0">Tres<br>Tigris</div>
+            <div class="tt-rule"></div>
+            <div class="tt-body" id="b0">Cerveza artesanal local. Cada mes, cervezas nuevas que no encontrarás en ningún otro sitio — para los que quieran estar dentro.</div>
+            <div style="height:16px"></div>
+            <div class="tt-li"><span class="tt-dot" id="d0">▸</span><span class="tt-li-text" id="l0">2–3 cervezas nuevas del lote mensual, exclusivas para socios</span></div>
+            <div class="tt-li"><span class="tt-dot">▸</span><span class="tt-li-text">Sesión mensual en el local — explicación del lote y pinchoteo</span></div>
+            <div class="tt-li"><span class="tt-dot">▸</span><span class="tt-li-text">Si no hay sesión, las botellas te las llevas a casa</span></div>
+            <div class="tt-li"><span class="tt-dot">▸</span><span class="tt-li-text">Descuentos en eventos y colaboraciones</span></div>
+            <div class="tt-inset">
+              <div class="tt-inset-label" id="il0">Plazas limitadas</div>
+              <div class="tt-inset-text" id="it0">La producción marca cuántos socios podemos tener. Cuando se llenan, se llenan.</div>
+            </div>
+          </div>
+          <div class="slide-content" id="slide-1">
+            <span class="tt-tag">Sábado 27 · 17:30 h</span>
+            <div class="tt-title" id="t1">Nueva<br>sesión</div>
+            <div class="tt-rule"></div>
+            <div class="tt-body" id="b1">Nuevo lote listo. Abrimos el local para catarlo juntos — te explicamos el proceso, qué hemos cambiado y por qué. Con pinchoteo incluido.</div>
+            <div class="tt-inset" style="margin-top:16px">
+              <div class="tt-inset-label">Además ese fin de semana</div>
+              <div class="tt-inset-text">Son las fiestas de San Pedro en Antromero. Si acabas la tarde con ganas de más, el prao te espera a tiro de piedra.</div>
+            </div>
+            <div style="height:12px"></div>
+            <div class="tt-note" id="n1">Solo para socios</div>
+          </div>
+        </div>
+        <div class="tt-bar">
+          <span class="tt-handle">@trestigris.brew</span>
+          <span class="tt-sub" id="bar-sub">Sin permanencia</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script>
+  const PIN = '1234';
+  let pinUnlocked = false;
+  let fmt = 'feed';
+  let activeTab = 0;
+  const barSubs = ['Sin permanencia','Tres Tigris Brewery'];
+
+  const SIZES = {
+    feed:  {w:540, h:540,  exp:1080, expH:1080},
+    story: {w:405, h:720,  exp:1080, expH:1920}
+  };
+
+  function applyFormat(){
+    const s = SIZES[fmt];
+    const outer = document.getElementById('slide-outer');
+    const inner = document.getElementById('slide-inner');
+    outer.style.width = s.w+'px';
+    outer.style.height = s.h+'px';
+    inner.style.height = (s.h-44)+'px';
+    const fs = fmt==='feed' ? 1 : 0.82;
+    document.querySelectorAll('.tt-title').forEach(el=>el.style.fontSize=Math.round(68*fs)+'px');
+    document.querySelectorAll('.tt-body').forEach(el=>el.style.fontSize=Math.round(16*fs)+'px');
+    document.querySelectorAll('.tt-li-text').forEach(el=>el.style.fontSize=Math.round(14*fs)+'px');
+    document.querySelectorAll('.tt-inset-label').forEach(el=>el.style.fontSize=Math.round(10*fs)+'px');
+    document.querySelectorAll('.tt-inset-text').forEach(el=>el.style.fontSize=Math.round(13*fs)+'px');
+    document.querySelectorAll('.tt-dot').forEach(el=>el.style.fontSize=Math.round(16*fs)+'px');
+    document.querySelectorAll('.tt-note').forEach(el=>el.style.fontSize=Math.round(10*fs)+'px');
+  }
+
+  function setFormat(f){
+    fmt=f;
+    document.getElementById('fmt-feed').classList.toggle('active',f==='feed');
+    document.getElementById('fmt-story').classList.toggle('active',f==='story');
+    applyFormat();
+  }
+
+  function switchTab(i){
+    activeTab=i;
+    document.querySelectorAll('.tt-tab').forEach((t,j)=>t.classList.toggle('active',i===j));
+    document.querySelectorAll('.slide-content').forEach((s,j)=>s.classList.toggle('active',i===j));
+    document.getElementById('bar-sub').textContent=barSubs[i];
+  }
+
+  function requestExport(){
+    if(pinUnlocked){doExport();return;}
+    const row=document.getElementById('pin-row');
+    row.classList.add('visible');
+    document.getElementById('pin-input').focus();
+  }
+
+  function checkPin(){
+    const val=document.getElementById('pin-input').value;
+    if(val===PIN){
+      pinUnlocked=true;
+      document.getElementById('pin-row').classList.remove('visible');
+      document.getElementById('pin-err').style.display='none';
+      doExport();
+    } else {
+      document.getElementById('pin-err').style.display='inline';
+      document.getElementById('pin-input').value='';
+    }
+  }
+
+  function doExport(){
+    const outer=document.getElementById('slide-outer');
+    const s=SIZES[fmt];
+    const scl=s.exp/s.w;
+    html2canvas(outer,{backgroundColor:'#2A3A22',scale:scl,useCORS:true,logging:false,width:s.w,height:s.h}).then(canvas=>{
+      const final=document.createElement('canvas');
+      final.width=s.exp; final.height=s.expH;
+      const ctx=final.getContext('2d');
+      ctx.fillStyle='#2A3A22';
+      ctx.fillRect(0,0,s.exp,s.expH);
+      const offsetY=Math.round((s.expH-canvas.height)/2);
+      ctx.drawImage(canvas,0,offsetY);
+      const a=document.createElement('a');
+      const label=activeTab===0?'membresia':'evento';
+      a.download='tres_tigris_'+label+'_'+fmt+'.jpg';
+      a.href=final.toDataURL('image/jpeg',0.95);
+      a.click();
+    });
+  }
+
+  applyFormat();
+  </script>
+</body>
+</html>
