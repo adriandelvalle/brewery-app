@@ -1,7 +1,7 @@
 # brewery-app
 
 > Brewery management application with AI assistance.
-> **Status**: Phase 1 — Week 4 Complete | [View Learning Path](https://github.com/adriandelvalle/dev-ml-llm-ops)
+> **Status**: Phase 2 — Week 5 In Progress (PostgreSQL + Docker Compose + SQLAlchemy) | [View Learning Path](https://github.com/adriandelvalle/dev-ml-llm-ops)
 
 ---
 
@@ -16,7 +16,28 @@ This project serves as:
 
 ## Quick Start
 
-### Full stack (Docker — recommended)
+### Full stack (Docker Compose — recommended)
+
+```bash
+cd ~/projects/brewery-app
+
+# Copy .env.example and fill in your values
+cp .env.example .env
+
+# Start everything
+docker compose up -d
+
+# Apply database migrations
+docker exec brewery-api alembic upgrade head
+
+# Check status
+docker compose ps
+```
+
+### [OLD] Full stack without Docker Compose (pre-Week 5 reference)
+
+> This was the original method before Docker Compose was introduced.
+> Kept here as reference to understand what Compose replaces.
 
 ```bash
 # 1. Network
@@ -34,7 +55,7 @@ docker run -d --name brewery-nginx --network brewery-network -p 80:80 \
   -v ~/projects/brewery-app/static:/usr/share/nginx/html/static:ro \
   --restart unless-stopped brewery-nginx:v0.2
 
-# 4. Cloudflare Tunnel (external access, free quick tunnel)
+# 4. Cloudflare Tunnel
 docker run -d --name brewery-cloudflared --network brewery-network --restart unless-stopped \
   cloudflare/cloudflared:latest tunnel --no-autoupdate --url http://brewery-nginx:80
 docker logs brewery-cloudflared   # shows the public URL
@@ -63,6 +84,12 @@ source venv/bin/activate
 pytest -v
 ```
 
+### Access psql
+
+```bash
+psql-brew   # alias configured in ~/.bashrc
+```
+
 ---
 
 ## Current Status
@@ -76,17 +103,26 @@ pytest -v
 | Backend API | ✅ Complete | FastAPI + /health endpoint |
 | Pydantic Models | ✅ Complete | Recipe, Batch, FermentationSample |
 | API v1 Endpoints | ✅ Complete | GET/POST recipes and batches |
-| Mock Data | ✅ Complete | In-memory data until PostgreSQL |
+| Mock Data | ✅ Complete | In-memory data — pending replacement with PostgreSQL |
 | pytest suite | ✅ Complete | 14 tests — recipes and batches |
-| Docker (API) | ✅ Complete | Containerized + restart unless-stopped |
+| Docker | ✅ Complete | All services via Docker Compose |
 | Service Persistence | ✅ Complete | Auto-starts after server reboot |
 | Docker Networks | ✅ Complete | brewery-network connecting all containers |
 | Nginx Reverse Proxy | ✅ Complete | Routes /static and /api/* + /health |
 | Static Files Serving | ✅ Complete | Tres Tigris content cards via volume mount |
 | Cloudflare Tunnel | ✅ Complete | Quick tunnel — external HTTPS access, no port forwarding |
+| Docker Compose | ✅ Complete | Full stack declared in single file |
+| PostgreSQL | ✅ Complete | Running in Docker with persistent named volume |
+| SQLAlchemy models | ✅ Complete | Recipe, Batch defined with relationships |
+| Alembic migrations | ✅ Complete | First migration applied — tables created |
 | AI Integration | ✅ Ready | OpenCode free tier (cloud-first, see ADR-0003) |
-| Custom domain | ⏳ Deferred | Until real content justifies `trestigris.beer` purchase |
-| Database | ⏳ Planned | PostgreSQL + SQLAlchemy + Alembic (Week 5) |
+| Connect API to PostgreSQL | ⏳ Pending | Replace mock_data with real DB queries |
+| FermentationSample DB model | ⏳ Pending | SQLAlchemy model + migration |
+| Socio model | ⏳ Pending | RGPD fields, quota type, renewal logic |
+| pytest with real DB | ⏳ Pending | Replace mock_data fixtures |
+| Custom domain | ⏳ Deferred | Until real content justifies `trestigris.com` purchase |
+| MinIO | ⏳ Planned | Week 6 |
+| HashiCorp Vault | ⏳ Planned | Week 7 |
 
 ---
 
@@ -95,12 +131,12 @@ pytest -v
 | Method | Route | Description | Status |
 | --- | --- | --- | --- |
 | GET | `/health` | Service health check | ✅ |
-| GET | `/api/v1/recipes/` | List all recipes | ✅ |
-| GET | `/api/v1/recipes/{id}` | Get recipe by ID | ✅ |
-| POST | `/api/v1/recipes/` | Create new recipe | ✅ |
-| GET | `/api/v1/batches/` | List all batches | ✅ |
-| GET | `/api/v1/batches/{id}` | Get batch by ID | ✅ |
-| POST | `/api/v1/batches/` | Create new batch | ✅ |
+| GET | `/api/v1/recipes/` | List all recipes | ✅ (mock) |
+| GET | `/api/v1/recipes/{id}` | Get recipe by ID | ✅ (mock) |
+| POST | `/api/v1/recipes/` | Create new recipe | ✅ (mock) |
+| GET | `/api/v1/batches/` | List all batches | ✅ (mock) |
+| GET | `/api/v1/batches/{id}` | Get batch by ID | ✅ (mock) |
+| POST | `/api/v1/batches/` | Create new batch | ✅ (mock) |
 | GET | `/api/v1/batches/{id}/fermentation` | List fermentation samples | ⏳ |
 | POST | `/api/v1/batches/{id}/fermentation` | Add fermentation sample | ⏳ |
 | PATCH | `/api/v1/batches/{id}/measurements` | Update batch measurements | ⏳ |
@@ -115,8 +151,18 @@ brewery-app/
 │   ├── src/
 │   │   ├── main.py                 # App entry point — registers routers only
 │   │   ├── api/v1/                 # recipes.py, batches.py
-│   │   ├── models/                 # recipe.py, batch.py, fermentation.py
-│   │   └── core/mock_data.py       # In-memory data (replaced by DB in Week 5)
+│   │   ├── models/                 # Pydantic: recipe.py, batch.py, fermentation.py
+│   │   ├── core/mock_data.py       # In-memory data (pending replacement with PostgreSQL)
+│   │   └── db/
+│   │       ├── base.py             # DeclarativeBase
+│   │       ├── session.py          # AsyncSession + get_db dependency
+│   │       └── models/
+│   │           ├── recipe.py       # SQLAlchemy Recipe model
+│   │           └── batch.py        # SQLAlchemy Batch model
+│   ├── alembic/                    # migrations
+│   │   └── versions/
+│   │       └── 653336fca96a_create_recipes_and_batches_tables.py
+│   ├── alembic.ini
 │   ├── tests/                      # conftest.py, test_recipes.py, test_batches.py
 │   ├── Dockerfile                  # Production image (python:3.12-slim)
 │   ├── .dockerignore
@@ -124,9 +170,12 @@ brewery-app/
 │   └── requirements-dev.txt        # Dev dependencies (-r requirements.txt + extras)
 ├── nginx/
 │   ├── Dockerfile                  # nginx:alpine + custom config
-│   └── nginx.conf                  # Reverse proxy + static serving rules
+│   └── nginx.conf                  # Reverse proxy + static serving rules + charset utf-8
 ├── static/
 │   └── tres_tigris_hojas_v2.html   # Instagram/WhatsApp content card (volume-mounted)
+├── .env                            # gitignored — real credentials
+├── .env.example                    # committed — credentials template
+├── docker-compose.yml              # full stack declaration
 ├── .pre-commit-config.yaml
 ├── .cz.toml
 ├── docs/decisions/
@@ -143,14 +192,15 @@ Internet (anywhere — verified via mobile data)
         ↓ HTTPS automatic
 Cloudflare (edge — quic protocol)
         ↓ encrypted outbound tunnel — no inbound ports, no exposed home IP
-jotasrv
-    └── brewery-cloudflared
-            ↓ Docker network "brewery-network"
-        brewery-nginx :80
-            ├── /static/  → tres_tigris_hojas_v2.html (volume, read-only)
-            └── /, /api/* → brewery-api:8000 (reverse proxy)
-                    ↓
-                FastAPI + Pydantic + mock data
+jotasrv — Docker Compose
+    ├── brewery-cloudflared
+    ├── brewery-nginx :80
+    │   ├── /static/  → tres_tigris_hojas_v2.html (volume, read-only)
+    │   └── /, /api/* → brewery-api:8000 (reverse proxy)
+    ├── brewery-api :8000
+    │       └── FastAPI + Pydantic + SQLAlchemy → mock_data (pending DB)
+    └── brewery-db :5432 (internal only)
+            └── PostgreSQL 16 — tables: recipes, batches, alembic_version
 ```
 
 **Why Cloudflare Tunnel over port forwarding**: the server only makes an
@@ -179,6 +229,9 @@ measurements: pre/post boil gravity and pH, fermentor volume, final gravity.
 **FermentationSample** — daily gravity/temperature/pH readings taken during
 fermentation until gravity stabilizes (typically 5–7 days).
 
+**Foreign key behavior**: `ON DELETE RESTRICT` (default) — deleting a recipe
+with existing batches is blocked. Soft delete planned for future releases.
+
 ---
 
 ## Tech Stack
@@ -188,29 +241,32 @@ fermentation until gravity stabilizes (typically 5–7 days).
 | Language | Python 3.12+ |
 | Framework | FastAPI (ASGI) + Uvicorn |
 | Validation | Pydantic v2 |
+| ORM | SQLAlchemy 2 (async) |
+| Migrations | Alembic |
+| Database | PostgreSQL 16 |
 | Testing | pytest + httpx + pytest-asyncio |
 | Code Quality | pre-commit + commitizen |
-| Containerization | Docker 29.5.2 |
+| Containerization | Docker Compose |
 | Reverse Proxy | Nginx (alpine) |
 | External Access | Cloudflare Tunnel (quick tunnel) |
 | AI / LLM | OpenCode CLI free cloud tier + Ollama (local, batch) |
-| Database | PostgreSQL + SQLAlchemy 2 + Alembic (Week 5) |
-| Secrets (pre-Vault) | python-dotenv + .env (Week 5) |
+| Secrets (pre-Vault) | python-dotenv + .env + .env.example |
 | CI/CD | GitHub Actions (Week 8) |
-| Secrets | HashiCorp Vault (Week 7) |
+| Secrets Mgmt | HashiCorp Vault (Week 7) |
 
 ---
 
 ## Backlog — Future Features
 
+- **Connect API to PostgreSQL** — replace `mock_data.py` with real SQLAlchemy queries. Next session.
 - **Member registration form** — legal/RGPD-compliant data capture, quota type
-  (monthly/yearly), renewal date logic. Deferred to Week 5 (needs real DB persistence).
+  (monthly/yearly), renewal date logic. Week 5 continuation.
 - **Admin panel with login** — JPG export tools, member management, batch status.
-  Not user-database vs LDAP question — a simple `users` table with bcrypt-hashed
-  passwords and role (`admin`/`socio`) is sufficient at this scale; LDAP is for
-  corporate-scale SSO across many apps, not needed here.
+  Simple `users` table with bcrypt-hashed passwords and role (`admin`/`socio`) —
+  no LDAP needed at this scale.
 - **Member area** — membership status, batch history, upcoming events.
-- **Custom domain `trestigris.beer`** — when there's real content to justify it.
+- **KB Tres Tigris** — Syncthing + jotasrv + Obsidian. Post-domain purchase.
+- **Custom domain `trestigris.com`** — when there's real content to justify it.
 
 ---
 
@@ -234,4 +290,4 @@ For detailed learning notes, progress tracking, and cheatsheets, visit the
 ---
 
 > Philosophy: Learning-first, users-later. 100% free stack. Depth > speed.
-> Last updated: 2026-06-19
+> Last updated: 2026-07-15

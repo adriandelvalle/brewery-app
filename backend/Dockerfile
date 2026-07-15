@@ -21,6 +21,11 @@ RUN pip install --no-cache-dir --upgrade pip && \
 # Docker reutiliza la capa de pip install y solo reconstruye esta capa
 COPY src/ ./src/
 
+# Copiar configuración de migraciones
+# Alembic gestiona los cambios de esquema de la base de datos
+COPY alembic/ ./alembic/
+COPY alembic.ini .
+
 # Exponer el puerto que usa uvicorn
 EXPOSE 8000
 
