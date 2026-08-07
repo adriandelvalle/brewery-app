@@ -1,18 +1,8 @@
-def test_list_recipes_returns_two_recipes(client):
-    """El mock tiene 2 recetas por defecto."""
+def test_list_recipes_empty(client):
+    """Sin datos, devuelve lista vacía."""
     response = client.get("/api/v1/recipes/")
     assert response.status_code == 200
-    assert len(response.json()) == 2
-
-
-def test_get_recipe_by_id(client):
-    """Debe devolver la receta con id=1."""
-    response = client.get("/api/v1/recipes/1")
-    assert response.status_code == 200
-    data = response.json()
-    assert data["id"] == 1
-    assert data["name"] == "Asturian Pale Ale"
-    assert data["style"] == "APA"
+    assert response.json() == []
 
 
 def test_get_recipe_not_found(client):
@@ -22,7 +12,7 @@ def test_get_recipe_not_found(client):
 
 
 def test_create_recipe_success(client):
-    """Una receta válida debe crearse con id=3 y created_at generado."""
+    """Una receta válida debe crearse con id generado y created_at."""
     payload = {
         "name": "Gijon Stout",
         "style": "STOUT",
@@ -36,9 +26,40 @@ def test_create_recipe_success(client):
     response = client.post("/api/v1/recipes/", json=payload)
     assert response.status_code == 201
     data = response.json()
-    assert data["id"] == 3
     assert data["name"] == "Gijon Stout"
+    assert data["style"] == "STOUT"
+    assert "id" in data
     assert "created_at" in data
+
+
+def test_get_recipe_by_id(client):
+    """Debe devolver la receta creada por su id."""
+    payload = {
+        "name": "Asturian Pale Ale",
+        "style": "APA",
+        "batch_size_liters": 50,
+        "target_og": 1.052,
+        "target_fg": 1.010
+    }
+    created = client.post("/api/v1/recipes/", json=payload).json()
+    response = client.get(f"/api/v1/recipes/{created['id']}")
+    assert response.status_code == 200
+    assert response.json()["name"] == "Asturian Pale Ale"
+
+
+def test_list_recipes_returns_created(client):
+    """Crear dos recetas y verificar que ambas aparecen en el listado."""
+    for name in ["Receta A", "Receta B"]:
+        client.post("/api/v1/recipes/", json={
+            "name": name,
+            "style": "IPA",
+            "batch_size_liters": 50,
+            "target_og": 1.055,
+            "target_fg": 1.011
+        })
+    response = client.get("/api/v1/recipes/")
+    assert response.status_code == 200
+    assert len(response.json()) == 2
 
 
 def test_create_recipe_invalid_style(client):
@@ -58,19 +79,3 @@ def test_create_recipe_missing_fields(client):
     """Campos obligatorios ausentes deben devolver 422."""
     response = client.post("/api/v1/recipes/", json={"name": "Solo nombre"})
     assert response.status_code == 422
-
-
-def test_create_recipe_increments_id(client):
-    """Crear dos recetas debe generar ids correlativos."""
-    payload = {
-        "name": "Primera",
-        "style": "IPA",
-        "batch_size_liters": 50,
-        "target_og": 1.055,
-        "target_fg": 1.011
-    }
-    r1 = client.post("/api/v1/recipes/", json=payload)
-    payload["name"] = "Segunda"
-    r2 = client.post("/api/v1/recipes/", json=payload)
-    assert r1.json()["id"] == 3
-    assert r2.json()["id"] == 4
