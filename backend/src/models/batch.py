@@ -1,7 +1,7 @@
 from enum import Enum
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional
-from datetime import date
+from datetime import date, datetime
 
 
 class BatchStatus(str, Enum):
@@ -14,7 +14,8 @@ class BatchStatus(str, Enum):
 
 
 class BatchBase(BaseModel):
-    """Campos comunes a todos los modelos de Batch."""
+    model_config = ConfigDict(from_attributes=True)
+
     recipe_id: int
     brew_date: date
     brewer: str = Field(..., min_length=2, max_length=50)
@@ -23,25 +24,30 @@ class BatchBase(BaseModel):
 
 
 class BatchCreate(BatchBase):
-    """Lo que recibe la API al crear un lote."""
     pass
 
 
 class BatchMeasurements(BaseModel):
-    """Mediciones tomadas durante el proceso. Opcionales porque se añaden en fases."""
-    pre_boil_og: Optional[float] = Field(None, description="Densidad pre-hervido")
+    """Mantenido por compatibilidad — usado en mock_data y tests existentes."""
+    pre_boil_og: Optional[float] = Field(None)
     pre_boil_ph: Optional[float] = Field(None, ge=0, le=14)
-    post_boil_og: Optional[float] = Field(None, description="Densidad post-hervido")
+    post_boil_og: Optional[float] = Field(None)
     post_boil_ph: Optional[float] = Field(None, ge=0, le=14)
     fermentor_volume_liters: Optional[float] = Field(None, gt=0, le=60)
-    final_og: Optional[float] = Field(None, description="Densidad original al entrar fermentador")
-    final_fg: Optional[float] = Field(None, description="Densidad final tras fermentacion")
+    final_og: Optional[float] = Field(None)
+    final_fg: Optional[float] = Field(None)
     actual_abv: Optional[float] = Field(None, ge=0, le=20)
 
 
 class BatchResponse(BatchBase):
-    """Lo que devuelve la API."""
     id: int
     status: BatchStatus
-    measurements: BatchMeasurements
-    created_at: str
+    pre_boil_og: Optional[float] = None
+    pre_boil_ph: Optional[float] = None
+    post_boil_og: Optional[float] = None
+    post_boil_ph: Optional[float] = None
+    fermentor_volume_liters: Optional[float] = None
+    final_og: Optional[float] = None
+    final_fg: Optional[float] = None
+    actual_abv: Optional[float] = None
+    created_at: datetime

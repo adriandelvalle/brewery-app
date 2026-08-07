@@ -1,6 +1,7 @@
-from enum import Enum
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional
+from enum import Enum
+from datetime import datetime
 
 
 class BeerStyle(str, Enum):
@@ -14,7 +15,8 @@ class BeerStyle(str, Enum):
 
 
 class RecipeBase(BaseModel):
-    """Campos comunes a todos los modelos de Recipe."""
+    model_config = ConfigDict(from_attributes=True)
+
     name: str = Field(..., min_length=2, max_length=100)
     style: BeerStyle
     batch_size_liters: float = Field(..., gt=0, le=100)
@@ -26,11 +28,9 @@ class RecipeBase(BaseModel):
 
 
 class RecipeCreate(RecipeBase):
-    """Lo que recibe la API al crear una receta. Hereda todo de RecipeBase."""
     pass
 
 
 class RecipeResponse(RecipeBase):
-    """Lo que devuelve la API. Añade campos generados por el sistema."""
     id: int
-    created_at: str
+    created_at: datetime

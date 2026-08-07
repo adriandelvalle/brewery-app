@@ -1,6 +1,8 @@
 from datetime import datetime
 from fastapi import FastAPI
 from src.api.v1 import recipes, batches
+from src.db.models import recipe as recipe_model  # noqa: F401
+from src.db.models import batch as batch_model    # noqa: F401
 
 app = FastAPI(
     title="Brewery App API",
